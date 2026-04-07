@@ -2,29 +2,44 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform target;           // Joueur à suivre
-    public float smoothSpeed = 0.125f; // Fluidité
-    public Vector3 offset;             // Décalage caméra / joueur
+    private Transform target;
 
-    // Limites de la caméra
+    public float smoothSpeed = 0.125f;
+    public Vector3 offset;
+
+    // Limites caméra
     public float minX, maxX, minY, maxY;
 
-    private void LateUpdate()
+    void Start()
     {
-        if (target != null)
+        // Trouver le bon joueur selon la sélection
+        if (CharacterSelection.selectedCharacter == 0)
         {
-            // Position désirée
-            Vector3 desiredPosition = target.position + offset;
-
-            // Lissage
-            Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
-
-            // Clamping pour rester dans les limites
-            float clampedX = Mathf.Clamp(smoothedPosition.x, minX, maxX);
-            float clampedY = Mathf.Clamp(smoothedPosition.y, minY, maxY);
-
-            // Appliquer la position finale
-            transform.position = new Vector3(clampedX, clampedY, transform.position.z);
+            GameObject player = GameObject.Find("Player");
+            if (player != null) target = player.transform;
         }
+        else
+        {
+            GameObject player = GameObject.Find("PlayerW");
+            if (player != null) target = player.transform;
+        }
+    }
+
+    void LateUpdate()
+    {
+        if (target == null) return;
+
+        Vector3 desiredPosition = target.position + offset;
+
+        Vector3 smoothedPosition = Vector3.Lerp(
+            transform.position,
+            desiredPosition,
+            smoothSpeed
+        );
+
+        float clampedX = Mathf.Clamp(smoothedPosition.x, minX, maxX);
+        float clampedY = Mathf.Clamp(smoothedPosition.y, minY, maxY);
+
+        transform.position = new Vector3(clampedX, clampedY, transform.position.z);
     }
 }
